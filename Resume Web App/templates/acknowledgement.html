@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application Submitted</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="ack-card">
+            <div class="ack-badge">Application Submitted</div>
+            <h2>Hurray! You have successfully applied for the job</h2>
+            <p>Your response has been recorded.</p>
+            <p>If selected, our team will contact you within 5-6 business days.</p>
+            <p>Thank you for applying!</p>
+
+            <div class="ack-highlight">
+                <strong>Next Step:</strong> We are reviewing your application and will update your status soon.
+            </div>
+
+            <hr>
+
+            <h3>Contact Us</h3>
+            <p class="muted">If you have any queries, reach out to our support team.</p>
+            <p>Phone: +91 9099165788</p>
+            <p>Email: <a href="mailto:connect.husainv@gmail.com">connect.husainv@gmail.com</a></p>
+
+            <hr>
+
+            <div class="ack-actions">
+                <a href="{{ url_for('feedback') }}" class="btn">Give Feedback</a>
+                <a href="{{ url_for('my_applications') }}" class="btn btn-secondary">Go Back</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

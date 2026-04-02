@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Applicants - {{ job.title }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Applicants for {{ job.title }}</h1>
+        <p>Ranked by AI match score.</p>
+        <a href="{{ url_for('recruiter_dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+
+        <div style="margin-top: 15px;">
+            <form method="POST" action="{{ url_for('auto_shortlist', job_id=job.id) }}" style="display:inline;">
+                <button class="btn" type="submit">Auto Shortlist Top 10%</button>
+            </form>
+            <a href="{{ url_for('export_csv', job_id=job.id) }}" class="btn btn-secondary">Export CSV</a>
+        </div>
+
+        <form method="GET" style="margin-top: 15px;">
+            <input type="text" name="search" placeholder="Search by skill" value="{{ request.args.get('search', '') }}">
+            <select name="status">
+                <option value="">All Status</option>
+                <option value="Applied" {% if request.args.get('status') == 'Applied' %}selected{% endif %}>Applied</option>
+                <option value="Shortlisted" {% if request.args.get('status') == 'Shortlisted' %}selected{% endif %}>Shortlisted</option>
+                <option value="Interview" {% if request.args.get('status') == 'Interview' %}selected{% endif %}>Interview</option>
+                <option value="Selected" {% if request.args.get('status') == 'Selected' %}selected{% endif %}>Selected</option>
+            </select>
+            <button type="submit" class="btn">Filter</button>
+        </form>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% if applications %}
+            <div class="table-wrap">
+            <table class="analysis-table">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Candidate</th>
+                        <th>Email</th>
+                        <th>Resume</th>
+                        <th>Match Score</th>
+                        <th>Role Fit</th>
+                        <th>Matched Skills</th>
+                        <th>Missing Skills</th>
+                        <th>Status</th>
+                        <th>Resume View</th>
+                        <th>Notes</th>
+                        <th>Update</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for app_item in applications %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>
+                            {{ app_item.candidate.name }}
+                            {% if app_item.parsed_name %}
+                                <div class="muted">Resume: {{ app_item.parsed_name }}</div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {{ app_item.candidate.email }}
+                            {% if app_item.parsed_email %}
+                                <div class="muted">Resume: {{ app_item.parsed_email }}</div>
+                            {% endif %}
+                        </td>
+                        <td>{{ app_item.resume_name }}</td>
+                        <td><span class="score">{{ app_item.match_score }}%</span></td>
+                        <td>
+                            <div class="role-fit {{ app_item.role_fit|lower|replace(' ', '-') if app_item.role_fit else '' }}">
+                                {{ app_item.role_fit or 'Pending' }}
+                            </div>
+                        </td>
+                        <td>{{ app_item.matched_skills or 'None' }}</td>
+                        <td>{{ app_item.missing_skills or 'None' }}</td>
+                        <td><span class="badge status-{{ app_item.status|lower }}">{{ app_item.status }}</span></td>
+                        <td>
+                            <a class="btn btn-secondary" href="{{ url_for('view_resume', filename=app_item.resume_name) }}" target="_blank">View Resume</a>
+                        </td>
+                        <td>
+                            <form method="POST" action="{{ url_for('add_note', app_id=app_item.id) }}" class="note-form">
+                                <textarea name="note" placeholder="Add notes...">{{ app_item.notes or '' }}</textarea>
+                                <button type="submit" class="btn">Save Note</button>
+                            </form>
+                        </td>
+                        <td>
+                            <form method="POST" action="{{ url_for('update_application_status') }}" class="inline-form">
+                                <input type="hidden" name="application_id" value="{{ app_item.id }}">
+                                <select name="status" required>
+                                    <option value="Applied" {% if app_item.status == 'Applied' %}selected{% endif %}>Applied</option>
+                                    <option value="Shortlisted" {% if app_item.status == 'Shortlisted' %}selected{% endif %}>Shortlisted</option>
+                                    <option value="Interview" {% if app_item.status == 'Interview' %}selected{% endif %}>Interview</option>
+                                    <option value="Selected" {% if app_item.status == 'Selected' %}selected{% endif %}>Selected</option>
+                                    <option value="Rejected" {% if app_item.status == 'Rejected' %}selected{% endif %}>Rejected</option>
+                                </select>
+                                <button type="submit" class="btn">Update</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            </div>
+        {% else %}
+            <p>No applicants yet.</p>
+        {% endif %}
+    </div>
+</body>
+</html>

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel - AI Resume Screening</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Admin Panel - System Overview</h1>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+        
+        <div class="card">
+            <h2>Application Status Overview</h2>
+            <canvas id="adminStatusChart" height="120"></canvas>
+        </div>
+
+        <h2>All Users</h2>
+        <div class="table-wrap">
+        <table class="analysis-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Action</th>
+                    <th>Created At</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.name }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.role }}</td>
+                    <td>
+                        <form method="POST" action="{{ url_for('delete_user', user_id=user.id) }}" style="display:inline;">
+                            <button class="delete-btn" type="submit" onclick="return confirm('Delete this user?')">Delete</button>
+                        </form>
+                    </td>
+                    <td>{{ user.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+
+        <h2 style="margin-top: 30px;">All Jobs</h2>
+        <div class="table-wrap">
+        <table class="analysis-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Recruiter</th>
+                    <th>Skills</th>
+                    <th>Posted</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for job in jobs %}
+                <tr>
+                    <td>{{ job.id }}</td>
+                    <td>{{ job.title }}</td>
+                    <td>{{ job.recruiter.email }}</td>
+                    <td>{{ job.required_skills or 'Not specified' }}</td>
+                    <td>{{ job.created_at.strftime('%Y-%m-%d') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+
+        <h2 style="margin-top: 30px;">All Analyses</h2>
+        <div class="table-wrap">
+        <table class="analysis-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>User</th>
+                    <th>Resume</th>
+                    <th>Match Score</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for analysis in analyses %}
+                <tr>
+                    <td>{{ analysis.id }}</td>
+                    <td>{{ analysis.user.email }}</td>
+                    <td>{{ analysis.resume_name }}</td>
+                    <td>{{ analysis.match_score }}%</td>
+                    <td>{{ analysis.created_at.strftime('%Y-%m-%d') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+
+        <h2 style="margin-top: 30px;">All Applications</h2>
+        <div class="table-wrap">
+        <table class="analysis-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Job</th>
+                    <th>Candidate</th>
+                    <th>Match Score</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for app_item in applications %}
+                <tr>
+                    <td>{{ app_item.id }}</td>
+                    <td>{{ app_item.job.title }}</td>
+                    <td>{{ app_item.candidate.email }}</td>
+                    <td>{{ app_item.match_score }}%</td>
+                    <td><span class="badge status-{{ app_item.status|lower }}">{{ app_item.status }}</span></td>
+                    <td>{{ app_item.created_at.strftime('%Y-%m-%d') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+
+        <h2 style="margin-top: 30px;">All Feedback</h2>
+        <div class="table-wrap">
+        <table class="analysis-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>User</th>
+                    <th>Rating</th>
+                    <th>Comment</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for fb in feedbacks %}
+                <tr>
+                    <td>{{ fb.id }}</td>
+                    <td>{{ fb.user.name if fb.user else ('User ' ~ fb.user_id) }}</td>
+                    <td>{{ fb.rating }}/5</td>
+                    <td>{{ fb.comment or 'No comment' }}</td>
+                    <td>
+                        <form method="POST" action="{{ url_for('delete_feedback', feedback_id=fb.id) }}" style="display:inline;">
+                            <button class="delete-btn" type="submit" onclick="return confirm('Delete this feedback?')">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='charts.js') }}"></script>
+    <script>
+      const statusData = JSON.parse('{{ status_counts | tojson | safe }}');
+      renderStatusChart('adminStatusChart', statusData);
+    </script>
+</body>
+</html>

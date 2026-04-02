@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recruiter Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Recruiter Dashboard</h1>
+        <p>Manage jobs, review applicants, and track hiring progress.</p>
+        <a href="{{ url_for('create_job') }}" class="btn">Create Job</a>
+        <a href="{{ url_for('logout') }}" class="btn btn-secondary">Logout</a>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h2>{{ total_jobs }}</h2>
+                <p>Total Jobs</p>
+            </div>
+            <div class="stat-card">
+                <h2>{{ total_applications }}</h2>
+                <p>Total Applications</p>
+            </div>
+            <div class="stat-card">
+                <h2>{{ avg_score }}%</h2>
+                <p>Average Match Score</p>
+            </div>
+            <div class="stat-card">
+                <h2>{{ top_score }}%</h2>
+                <p>Top Candidate Score</p>
+            </div>
+            <div class="stat-card">
+                <h2>{{ status_counts['Shortlisted'] }}</h2>
+                <p>Shortlisted</p>
+            </div>
+            <div class="stat-card">
+                <h2>{{ status_counts['Interview'] }}</h2>
+                <p>Interviews</p>
+            </div>
+            <div class="stat-card">
+                <h2>{{ status_counts['Selected'] }}</h2>
+                <p>Selected</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Application Status Overview</h2>
+            <canvas id="recruiterStatusChart" height="120"></canvas>
+        </div>
+
+        <h2 style="margin-top: 30px;">Your Job Postings</h2>
+        {% if jobs %}
+            <div class="table-wrap">
+            <table class="analysis-table">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Skills</th>
+                        <th>Experience</th>
+                        <th>Posted</th>
+                        <th>Applicants</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for job in jobs %}
+                    <tr>
+                        <td>{{ job.title }}</td>
+                        <td>{{ job.required_skills or 'Not specified' }}</td>
+                        <td>{{ job.experience_level or 'Any' }}</td>
+                        <td>{{ job.created_at.strftime('%Y-%m-%d') }}</td>
+                        <td>{{ job.applications|length }}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="{{ url_for('view_applicants', job_id=job.id) }}" class="btn">View Applicants</a>
+                                <a href="{{ url_for('edit_job', job_id=job.id) }}" class="btn btn-secondary">Edit</a>
+                                <form method="POST" action="{{ url_for('delete_job', job_id=job.id) }}" class="inline-form">
+                                    <button type="submit" class="delete-btn" onclick="return confirm('Delete this job?')">Delete</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            </div>
+        {% else %}
+            <p>No job postings yet. Create your first job.</p>
+        {% endif %}
+    </div>
+    <script src="{{ url_for('static', filename='charts.js') }}"></script>
+    <script>
+        renderStatusChart('recruiterStatusChart', {{ status_counts | tojson }});
+    </script>
+</body>
+</html>

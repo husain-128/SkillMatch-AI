@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis Results - AI Resume Screening</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Analysis Results</h1>
+        <div class="score">Match Score: {{ match_percentage }}%</div>
+        <div class="progress">
+            <div class="progress-bar" style="width: {{ match_percentage }}%;">
+                {{ match_percentage }}%
+            </div>
+        </div>
+
+        <div class="recommendation-box">
+            <h3>AI Resume Recommendations</h3>
+            <ul>
+                {% for rec in recommendations %}
+                    <li>{{ rec }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="summary-box">
+            <h2>AI Skill Gap Analysis</h2>
+            <p>Total Required Skills: <strong>{{ job_skills|length }}</strong></p>
+            <p>Skills Found: <strong>{{ matched_skills|length }}</strong></p>
+            <p>Skills Missing: <strong>{{ missing_skills|length }}</strong></p>
+            <p><strong>Recommendation:</strong>
+                {% if missing_skills %}
+                    Improve skills in {{ missing_skills | join(', ') }}.
+                {% else %}
+                    Great match. Focus on highlighting your strengths.
+                {% endif %}
+            </p>
+        </div>
+        
+        <h2>Matched Skills</h2>
+        <ul>
+            {% if matched_skills %}
+                {% for skill in matched_skills %}
+                    <li class="matched">{{ skill.title() }}</li>
+                {% endfor %}
+            {% else %}
+                <li>No matched skills found.</li>
+            {% endif %}
+        </ul>
+        
+        <h2>Missing Skills</h2>
+        <ul>
+            {% if missing_skills %}
+                {% for skill in missing_skills %}
+                    <li class="missing">{{ skill.title() }}</li>
+                {% endfor %}
+            {% else %}
+                <li>No missing skills.</li>
+            {% endif %}
+        </ul>
+        
+        <div class="explanation">
+            <strong>Explanation:</strong> {{ explanation }}
+        </div>
+        
+        <div class="suggestions">
+            <h3>Improvement Suggestions:</h3>
+            <ul>
+                {% for suggestion in suggestions %}
+                    <li>{{ suggestion }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        
+        <a href="{{ url_for('analyze') }}" class="btn">Analyze Another Resume</a>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Applications</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>My Applications</h1>
+        <p>Track your job application status and AI match score.</p>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% if applications %}
+            <div class="table-wrap">
+            <table class="analysis-table">
+                <thead>
+                    <tr>
+                        <th>Job Title</th>
+                        <th>Match Score</th>
+                        <th>Role Fit</th>
+                        <th>Timeline</th>
+                        <th>Matched Skills</th>
+                        <th>Missing Skills</th>
+                        <th>Status</th>
+                        <th>Applied On</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for app_item in applications %}
+                    <tr>
+                        <td>{{ app_item.job.title }}</td>
+                        <td><span class="score">{{ app_item.match_score }}%</span></td>
+                        <td>
+                            <div class="role-fit {{ app_item.role_fit|lower|replace(' ', '-') if app_item.role_fit else '' }}">
+                                {{ app_item.role_fit or 'Pending' }}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="timeline">
+                                <span class="{% if app_item.status in ['Applied','Shortlisted','Interview','Selected'] %}active{% endif %}">Applied</span>
+                                <span class="{% if app_item.status in ['Shortlisted','Interview','Selected'] %}active{% endif %}">Shortlisted</span>
+                                <span class="{% if app_item.status in ['Interview','Selected'] %}active{% endif %}">Interview</span>
+                                <span class="{% if app_item.status == 'Selected' %}active{% endif %}">Selected</span>
+                            </div>
+                        </td>
+                        <td>{{ app_item.matched_skills or 'None' }}</td>
+                        <td>
+                            {{ app_item.missing_skills or 'None' }}
+                            {% if app_item.missing_skills %}
+                                <div class="recommendation-box">
+                                    <h4>AI Resume Recommendations</h4>
+                                    <ul>
+                                        {% for skill in app_item.missing_skills.split(',') %}
+                                            {% if skill %}
+                                                <li>Consider adding {{ skill }} to improve your chances</li>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% endif %}
+                        </td>
+                        <td><span class="badge status-{{ app_item.status|lower }}">{{ app_item.status }}</span></td>
+                        <td>{{ app_item.created_at.strftime('%Y-%m-%d') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            </div>
+        {% else %}
+            <p>You have not applied to any jobs yet.</p>
+        {% endif %}
+    </div>
+</body>
+</html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jobs - AI Recruitment</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Available Jobs</h1>
+        <p>Apply to roles that match your skills and track your status.</p>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% if jobs %}
+            <div class="table-wrap">
+            <table class="analysis-table">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Skills</th>
+                        <th>Experience</th>
+                        <th>Posted</th>
+                        <th>Match Score</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for job in jobs %}
+                    <tr>
+                        <td>{{ job.title }}</td>
+                        <td>{{ job.required_skills or 'Not specified' }}</td>
+                        <td>{{ job.experience_level or 'Any' }}</td>
+                        <td>{{ job.created_at.strftime('%Y-%m-%d') }}</td>
+                        <td>
+                            {% if app_map.get(job.id) %}
+                                <span class="score">{{ app_map.get(job.id).match_score }}%</span>
+                            {% else %}
+                                <span class="muted">Apply to view</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if app_map.get(job.id) %}
+                                <span class="badge status-{{ app_map.get(job.id).status|lower }}">{{ app_map.get(job.id).status }}</span>
+                            {% else %}
+                                <a href="{{ url_for('apply_job', job_id=job.id) }}" class="btn">Apply</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            </div>
+        {% else %}
+            <p>No jobs posted yet. Please check back soon.</p>
+        {% endif %}
+    </div>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - AI Resume Screening</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome, {{ current_user.name }}!</h1>
+        <p>Browse jobs, apply with your resume, and track your application status.</p>
+        <a href="{{ url_for('jobs') }}" class="btn">Browse Jobs</a>
+        <a href="{{ url_for('my_applications') }}" class="btn">My Applications</a>
+        <!-- Only show admin link if user is admin -->
+{% if current_user.role == 'admin' or current_user.email == '2005hussainvanak@gmail.com' %}
+    <a href="{{ url_for('admin') }}" class="btn btn-secondary">Admin Panel</a>
+{% endif %}
+        <a href="{{ url_for('logout') }}" class="btn btn-secondary">Logout</a>
+        
+        <h3 style="margin-top: 30px;">User Reviews</h3>
+        {% if feedbacks %}
+            {% for fb in feedbacks %}
+                <div class="review-box">
+                    <p><strong>{{ fb.user.name if fb.user else ('User ' ~ fb.user_id) }}</strong></p>
+                    <p>
+                        Rating: {{ fb.rating }}/5
+                        {% if fb.rating %}
+                            <span class="stars">
+                                {% for _ in range(fb.rating|int) %}&#9733;{% endfor %}
+                            </span>
+                        {% endif %}
+                    </p>
+                    {% if fb.comment %}
+                        <p>{{ fb.comment }}</p>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No reviews yet.</p>
+        {% endif %}
+
+    </div>
+</body>
+</html>

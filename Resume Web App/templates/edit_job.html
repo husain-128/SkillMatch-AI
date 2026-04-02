@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Job - AI Recruitment</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Edit Job Posting</h1>
+        <p>Update job details as needed.</p>
+        <a href="{{ url_for('recruiter_dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST">
+            <label for="title">Job Title:</label>
+            <input type="text" id="title" name="title" value="{{ job.title }}" required>
+
+            <label for="description">Job Description:</label>
+            <textarea id="description" name="description" rows="6" required>{{ job.description }}</textarea>
+
+            <label for="required_skills">Required Skills (comma-separated):</label>
+            <input type="text" id="required_skills" name="required_skills" value="{{ job.required_skills or '' }}">
+
+            <label for="experience_level">Experience Level:</label>
+            <input type="text" id="experience_level" name="experience_level" value="{{ job.experience_level or '' }}">
+
+            <button type="submit">Update Job</button>
+        </form>
+    </div>
+</body>
+</html>

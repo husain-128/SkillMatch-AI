@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apply - {{ job.title }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Apply for {{ job.title }}</h1>
+        <p>Upload your resume to calculate your AI match score.</p>
+        <a href="{{ url_for('jobs') }}" class="btn btn-secondary">Back to Jobs</a>
+
+        <div class="card">
+            <h2>Job Details</h2>
+            <p><strong>Experience:</strong> {{ job.experience_level or 'Any' }}</p>
+            <p><strong>Required Skills:</strong> {{ job.required_skills or 'Not specified' }}</p>
+            <p>{{ job.description }}</p>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" enctype="multipart/form-data">
+            <label for="resume">Upload Resume (PDF):</label>
+            <input type="file" id="resume" name="resume" accept=".pdf" required>
+            <button type="submit">Submit Application</button>
+        </form>
+    </div>
+</body>
+</html>
